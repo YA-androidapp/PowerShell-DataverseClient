@@ -7,12 +7,12 @@ $resourceAppIdUri = 'https://***********.crm*.dynamics.com'
 
 $tenantId = (Get-AzTenant).Id
 $appId = (Get-AzADApplication -Displayname 'PowerShellDataverseClient').AppId
-$tokenEndpoint= 'https://login.microsoftonline.com/$tenantId/oauth2/token'
+$tokenEndpoint = 'https://login.microsoftonline.com/' + $tenantId + '/oauth2/token'
 
 $body = @{
-    resource      = '$resourceAppIdUri'
-    client_id     = '$appId'
-    client_secret = '$appSecret'
+    resource      = $resourceAppIdUri
+    client_id     = $appId
+    client_secret = $appSecret
     grant_type    = 'client_credentials'
 }
 
@@ -34,3 +34,26 @@ $result = Invoke-RestMethod -Uri ($endPoint + '?' + $query) -Method 'GET' -Heade
 
 Write-Output $result.value | ConvertTo-Json
 $result.value | ConvertTo-Csv | Out-File read.csv
+
+
+
+# ----------
+
+# CRUD共通
+$headers = @{Authorization = " Bearer $Token" }
+$endPoint = 'https://*******.api.crm*.dynamics.com/api/data/v9.2/crcda_zenkokus'
+
+$id = '*******-****-****-****-***********'
+$body = '{"crcda_zenkokuid":"abc123"}'
+
+# C
+Invoke-RestMethod -Uri $endPoint -Method 'POST' -Headers $headers -Body $body -ContentType "application/json"
+
+# R
+Invoke-RestMethod -Uri $endPoint -Method 'GET' -Headers $headers
+
+# U
+Invoke-RestMethod -Uri "$endPoint($id)" -Method 'PATCH' -Headers $headers -Body $body -ContentType "application/json"
+
+# D
+Invoke-RestMethod -Uri "$endPoint($id)" -Method 'DELETE' -Headers $headers -Body $body
